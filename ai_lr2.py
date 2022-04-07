@@ -9,12 +9,6 @@ from re import S
 import numpy as np
 import matplotlib.pyplot as plt
 
-def dotP(L,W):
-	f = 0
-	for x, w in zip(L,W):
-		f += x*w
-	return f
-
 def ReLU(x): return max(0, x)  # ReLU activation function
 
 def dReLU(x): return np.array([1 if i >= 0 else 0 for i in x])  # ReLU derivative function
@@ -112,17 +106,17 @@ def infer(xs, W):
     net = [[x for x in xs], [0] * 3, [0,0]]
     for i, Wl in enumerate(W):
         for j, Wn in zip(range(len(net[i+1])),Wl):
-            net[i+1][j] = sigmoid(dotP(net[i], Wn))
+            net[i+1][j] = sigmoid(np.dot(net[i], Wn))
 
     return net[2], net
 
 def adjustWeights(net, W, y, learningRate):
     sigmas = [[0,0,0],[0,0]]
     for i, o in enumerate(net[-1]):
-        sigmas[-1][i] = dLoss(net[-1],y) * dSigmoid(dotP(net[-2],W[-1][i]))
+        sigmas[-1][i] = dLoss(net[-1],y) * dSigmoid(np.dot(net[-2],W[-1][i]))
 
     for i, sigma in enumerate(sigmas[0]):
-        sigmas[0][i] = np.sum([s*W[1][j][i] for j, s in enumerate(sigmas[-1])]) * dSigmoid(dotP(net[0],W[0][i]))
+        sigmas[0][i] = np.sum([s*W[1][j][i] for j, s in enumerate(sigmas[-1])]) * dSigmoid(np.dot(net[0],W[0][i]))
     
     for i, Wl in enumerate(W):
         for j, Wn in enumerate(Wl):
@@ -193,7 +187,7 @@ for xs, ys in zip(X,Y):
     out, _ = infer(xs,W)
     sumErr += out[0] - ys[0]
     # out[1]=1 if out[1] > 0.6 else 0
-    print(f"{out} {ys}")
+    print(f"{out}  \t{ys}")
 print()
 print(sumErr/len(X))
 
