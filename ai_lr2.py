@@ -25,12 +25,6 @@ def loss(output, y):  return 1/2 * ((output[0] - y[0] + output[1] - y[1])/2)**2
 
 def dLoss(output, y): return (output[0] - y[0] + output[1] - y[1])/2 
 
-def batchLoss(outpus, Y):
-    sum = 0
-    for o,y in zip(outpus, Y):
-        sum += loss(o,y)
-    return sum / len(outpus)
-
 def printW(W):
     print("W:")
     for w in W:
@@ -110,6 +104,12 @@ def infer(xs, W):
 
     return net[2], net
 
+def batchLoss(outpus, Y):
+    sum = 0
+    for o,y in zip(outpus, Y):
+        sum += loss(o,y)
+    return sum / len(outpus)
+
 def adjustWeights(net, W, y, learningRate):
     sigmas = [[0,0,0],[0,0]]
     for i, o in enumerate(net[-1]):
@@ -121,7 +121,7 @@ def adjustWeights(net, W, y, learningRate):
     for i, Wl in enumerate(W):
         for j, Wn in enumerate(Wl):
             for k, w in enumerate(Wn):
-                W[i][j][k] += learningRate * sigmas[i][j] * net[i][j]
+                W[i][j][k] -= learningRate * sigmas[i][j] * net[i][j]
     return
 
 def train(X, Y, W, targetError, learningRate):
@@ -139,12 +139,13 @@ def train(X, Y, W, targetError, learningRate):
         sumErr=0
         net = NULL
         outputs = []
+        loss = 0
         for xs, ys in batch:
             output, net = infer(xs, W)
             outputs.append(output)
             sumErr += abs(output[0] - ys[0])
-            adjustWeights(net, W, ys, learningRate)
-        loss = batchLoss(outputs, [b[1] for b in batch])
+            loss += dLoss(output, ys)
+        adjustWeights(net, W, ys, learningRate)
         print( "╟──────────╫─────────────────────╫───────────────────")
         
         print(f"║{i+1}\t   ║{sumErr/20}\t ║{sumErr/20-prevError}")
