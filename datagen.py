@@ -19,8 +19,10 @@ def normalize(X,Y):
         Y[i][0] = (ys[0] - minY)/(maxY - minY)
         Y[i][1] = (ys[1] - minY1)/(maxY1 - minY1)
 
-def generateData(func, X, Y, x1, x2, x3):
-    for i in range(20):
+def generateData(func, set_size, x1, x2, x3):
+    X = [0]*set_size
+    Y = [0]*set_size
+    for i in range(set_size):
         X[i] = [0] * 3
         Y[i] = [0] * 2
 
@@ -57,3 +59,5 @@ def generateData(func, X, Y, x1, x2, x3):
                     Y[i][j] = 1
     
     normalize(X, Y)
+
+    return X, Y
