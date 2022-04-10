@@ -15,10 +15,10 @@ from network import *
 
 
 def train(net: Net, iterations_count):
+    error = 0
+    prev_error = 0
     for iteration in range(iterations_count):
-        deltas = NULL
-        error = 0
-        prev_error = 0 
+        deltas = NULL        
         for xs, ys in zip(X,Y):
             net.forward(xs)
             if deltas == NULL:
@@ -30,9 +30,11 @@ def train(net: Net, iterations_count):
         error /= len(X)
         for i in range(len(deltas)):
                 deltas[i] /= len(X)
+        
         net.update_weights(deltas)
         print( "╟──────────╫─────────────────────╫───────────────────")
-        print(f"{iteration+1}\t {error}\t {prev_error - error}")
+        print(f"{iteration+1}\t {error}\t {error-prev_error}")
+        prev_error = error
 
 
 set_size = 32
@@ -41,11 +43,11 @@ x2 = 8
 x3 = 7
 target_error = 0.002
 
-net = Net(learning_rate = 0.0001, hid_count = 5)
+net = Net(learning_rate = 0.0001, hid_count = 10)
 
 X, Y = generateData(func, set_size, x1, x2, x3)
 
-train(net, 100)
+train(net, 4000)
 
 for xs, ys in zip(X,Y):
     net.forward(xs)    

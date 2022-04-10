@@ -31,11 +31,13 @@ class Net:
 
 
     def forward(self, xs):
-        self.input = np.array(xs)
+        self.neurons[0] = np.array(xs)
         for i, Wl in enumerate(self.weights):
             for j, neuron_weights in enumerate(Wl):
                 activation = np.dot(self.neurons[i], neuron_weights)
                 self.neurons[i+1][j] = sigmoid(activation)
+
+        output = self.neurons[-1]
 
     def backward(self, xs, ys):
         deltas = [
@@ -48,7 +50,7 @@ class Net:
         # calc sigmas for output layer
         for i, o in enumerate(self.neurons[-1]):
             activation = np.dot(self.neurons[-2], self.weights[-1][i]) # Z * W
-            sigmas[-1][i] = dLoss(self.output, ys) * dSigmoid(activation) # dJ * dy
+            sigmas[-1][i] = dLoss(self.neurons[-1], ys) * dSigmoid(activation) # dJ * dy
 
         #calc sigmas for hidden layer
         for i, sigma in enumerate(sigmas[0]):
