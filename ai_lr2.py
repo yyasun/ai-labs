@@ -1,5 +1,6 @@
 from ast import operator
 from asyncio.windows_events import NULL
+from distutils.log import error
 import enum
 from gettext import NullTranslations
 import math
@@ -14,19 +15,24 @@ from network import *
 
 
 def train(net: Net, iterations_count):
-    for i in range(iterations_count):
+    for iteration in range(iterations_count):
         deltas = NULL
+        error = 0
+        prev_error = 0 
         for xs, ys in zip(X,Y):
             net.forward(xs)
             if deltas == NULL:
                 deltas = net.backward(xs, ys)
             delta = net.backward(xs, ys)
-            for i in range(deltas):
+            error += abs(net.output[0] - ys[0])
+            for i in range(len(deltas)):
                 deltas[i] += delta[i]
-        for i in range(deltas):
+        error /= len(X)
+        for i in range(len(deltas)):
                 deltas[i] /= len(X)
         net.update_weights(deltas)
         print( "╟──────────╫─────────────────────╫───────────────────")
+        print(f"{iteration+1}\t {error}\t {prev_error - error}")
 
 
 set_size = 32
@@ -35,12 +41,17 @@ x2 = 8
 x3 = 7
 target_error = 0.002
 
-net = Net(learning_rate = 0.001, hid_count = 100)
+net = Net(learning_rate = 0.0001, hid_count = 5)
 
 X, Y = generateData(func, set_size, x1, x2, x3)
 
-net.forward(X[0])
-print(net.output)
+train(net, 100)
+
+for xs, ys in zip(X,Y):
+    net.forward(xs)    
+    print(f"{net.output}  \t{ys}")
+
+
 
 # print("X\tY")
 # for xs, ys in zip(X,Y):
@@ -101,16 +112,17 @@ def batchLoss(outpus, Y):
         sum += loss(o,y)
     return sum / len(outpus)
 
-def backward(net, W, y, learningRate, loss):
-    sigmas = [[0,0,0],[0,0]]
-    for i, o in enumerate(net[-1]):
-        sigmas[-1][i] = loss * dSigmoid(np.dot(net[-2],W[-1][i]))
+# def backward(net, W, y, learningRate, loss):
+#     sigmas = [[0,0,0],[0,0]]
 
-    for i, sigma in enumerate(sigmas[0]):
-        sigmas[0][i] = np.sum([s*W[1][j][i] for j, s in enumerate(sigmas[-1])]) * dSigmoid(np.dot(net[0],W[0][i]))
+#     for i, o in enumerate(net[-1]):
+#         sigmas[-1][i] = loss * dSigmoid(np.dot(net[-2],W[-1][i]))
+
+#     for i, sigma in enumerate(sigmas[0]):
+#         sigmas[0][i] = np.sum([s*W[1][j][i] for j, s in enumerate(sigmas[-1])]) * dSigmoid(np.dot(net[0],W[0][i]))
     
-    for i, Wl in enumerate(W):
-        for j, Wn in enumerate(Wl):
-            for k, w in enumerate(Wn):
-                W[i][j][k] -= learningRate * sigmas[i][j] * net[i][j]
-    return
+#     for i, Wl in enumerate(W):
+#         for j, Wn in enumerate(Wl):
+#             for k, w in enumerate(Wn):
+#                 deltas[i][j][k] = sigmas[i][j] * net[i][j]
+#     return
