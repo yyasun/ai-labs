@@ -12,13 +12,22 @@ import matplotlib.pyplot as plt
 from datagen import *
 from mathfuncs import *
 from network import *
+from decimal import *
+
+
+def Shuffle(X, Y):
+    rng_state = np.random.get_state()
+    np.random.shuffle(X)
+    np.random.set_state(rng_state)
+    np.random.shuffle(Y)
 
 
 def train(net: Net, iterations_count):
     error = 0
     prev_error = 0
     for iteration in range(iterations_count):
-        deltas = NULL        
+        deltas = NULL
+        Shuffle(X,Y)
         for xs, ys in zip(X,Y):
             net.forward(xs)
             if deltas == NULL:
@@ -38,16 +47,16 @@ def train(net: Net, iterations_count):
 
 
 set_size = 32
-x1 = 9
-x2 = 8
-x3 = 7
-target_error = 0.002
+x1 = 5
+x2 = 4
+x3 = 3
 
-net = Net(learning_rate = 0.0001, hid_count = 10)
+getcontext().prec = 6
+net = Net(learning_rate = 0.0001, hid_count = 100)
 
 X, Y = generateData(func, set_size, x1, x2, x3)
 
-train(net, 4000)
+train(net, 100)
 
 for xs, ys in zip(X,Y):
     net.forward(xs)    

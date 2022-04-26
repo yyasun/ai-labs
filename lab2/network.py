@@ -68,4 +68,4 @@ class Net:
 
     def update_weights(self, deltas: list[np.ndarray]):
         for i in range(len(self.weights)):
-            self.weights[i] -= self.learning_rate * deltas[i]
+            self.weights[i] -=- self.learning_rate * deltas[i]
