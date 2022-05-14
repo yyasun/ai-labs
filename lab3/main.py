@@ -42,8 +42,12 @@ def crossover(m: indiv, f: indiv, fit) -> indiv:
 def mutate(i: indiv, fit):
     if rnd.uniform(0,1) > mutation_chance:
         return
-    i.geneX = np.clip(i.geneX + rnd.uniform(-.5,.5),-4,4)
-    i.geneY = np.clip(i.geneY + rnd.uniform(-.5,.5),-4,4)
+    multipe = rnd.randint(-10,2)
+    mut_value  = 2**multipe if rnd.uniform(0,1) > 0.5 else -(2**multipe)
+    if rnd.uniform(0,1) > 0.5:
+        i.geneX = np.clip(i.geneX + mut_value,-4,4)
+    else:
+        i.geneY = np.clip(i.geneY + mut_value,-4,4)
     i.fit = fit(i.geneX, i.geneY)
 
 mutation_chance = 0.1
@@ -51,20 +55,21 @@ mutation_chance = 0.1
 gen = generate(10, camel)
 
 for i in range(10000):
-    print(f"iteration: {i}")    
-    print([g.fit for g in gen])
+    # print(f"iteration: {i}")    
+    # print([g.fit for g in gen])
     avg_fit = sum([g.fit for g in gen])/len(gen)
-    print(f"best fit: {min([g.fit for g in gen])}    |   avg fit: {avg_fit}")
-    print()
+    # print(f"best fit: {min([g.fit for g in gen])}    |   avg fit: {avg_fit}")
+    # print()
     # bread new gen
     
     
     # selection
     breaders = [indiv for indiv in gen if indiv.fit <= avg_fit]
+    if len(breaders) == 0:
+        breaders = gen
     new_gen = []
     # started new gen
     for j in range(len(gen)):
-        print(f"breaders count:{len(breaders)}")
         mother = rnd.choice(breaders)
         father = rnd.choice(breaders)
         # crossover
@@ -74,7 +79,7 @@ for i in range(10000):
         new_gen.append(child)
     gen = new_gen
 
-print(min([(g.fit,g.geneX, g.geneY) for g in gen]))
+print(f"best fit: {min([g.fit for g in gen])}")
 
 
 # 1 - generate
