@@ -45,9 +45,9 @@ def mutate(i: indiv, fit):
     multipe = rnd.randint(-10,2)
     mut_value  = 2**multipe if rnd.uniform(0,1) > 0.5 else -(2**multipe)
     if rnd.uniform(0,1) > 0.5:
-        i.geneX = np.clip(i.geneX + mut_value,-4,4)
-    else:
-        i.geneY = np.clip(i.geneY + mut_value,-4,4)
+        i.geneX = np.clip(i.geneX + rnd.gauss(-0.5,0.5),-4,4)
+    if rnd.uniform(0,1) > 0.5:
+        i.geneY = np.clip(i.geneY + rnd.gauss(-0.5,0.5),-4,4)
     i.fit = fit(i.geneX, i.geneY)
 
 mutation_chance = 0.1
