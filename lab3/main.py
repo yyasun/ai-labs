@@ -7,17 +7,24 @@ import math
 import random as rnd
 from ast import literal_eval
 
-class indiv:
-    def __init__(self,x = 0.0,y = 0.0,fit = 0.0):
-        self.geneX = x
-        self.geneY = y
-        self.fit = fit
+class indiv(list):
+    def __init__(self, genes_v, fit_f):
+        self.fit = fit_f(genes_v)
+        self.extend(genes_v)
+    
+    def __str__(self):
+        return f"{self[:]}, fit: {self.fit}"
 
-def ecly(x,y):
+    def clone(self):
+        return indiv(self[:], self.fit)
+
+def ecly(v: list):
+    x, y = v
     res = -20 * math.exp(-0.2 * sqrt(0.5*(x**2 + y**2))) - math.exp(0.5*(math.cos(2*math.pi*x) + math.cos(2*math.pi*y))) + math.e + 20
     return res
 
-def camel(x,y):
+def camel(v: list):
+    x, y = v
     return 2*x**2 - 1.05*x**4 + (x**6)/6 + x*y + y**2
 
 def generate(count, fit):
@@ -25,19 +32,17 @@ def generate(count, fit):
     for i in range(count):
         x = rnd.uniform(-4,4)
         y = rnd.uniform(-4,4)        
-        gen.append(indiv(x, y, fit(x,y)))
+        gen.append(indiv([x, y], fit))
     return gen
 
-def crossover(m: indiv, f: indiv, fit) -> indiv:
-    child = indiv()
-    if rnd.uniform(0,1) < 0.5:
-        child.geneX = f.geneX
-        child.geneY = m.geneY
-    else:
-        child.geneX = m.geneY 
-        child.geneY = f.geneX
-    child.fit = fit(child.geneX, child.geneY)
-    return child
+def crossover(m: indiv, f: indiv, fit):
+    child1 = m.clone()
+    child2 = f.clone()
+    c_pnt = rnd.randint(1,len(f)-1)    
+    child1[c_pnt:], child2[c_pnt:] = child2[c_pnt:], child1[c_pnt:]
+    child1.fit = fit(child1[:])
+    child2.fit = fit(child2[:])
+    return [child1, child2]
 
 def mutate(i: indiv, fit):
     if rnd.uniform(0,1) > mutation_chance:
@@ -50,32 +55,34 @@ def mutate(i: indiv, fit):
         i.geneY = np.clip(i.geneY + rnd.gauss(-0.5,0.5),-4,4)
     i.fit = fit(i.geneX, i.geneY)
 
-mutation_chance = 0.1
-
-gen = generate(10, camel)
-
-for i in range(10000):
-    # print(f"iteration: {i}")    
-    # print([g.fit for g in gen])
+def selection(gen: list):
     avg_fit = sum([g.fit for g in gen])/len(gen)
-    # print(f"best fit: {min([g.fit for g in gen])}    |   avg fit: {avg_fit}")
-    # print()
-    # bread new gen
-    
-    
-    # selection
     breaders = [indiv for indiv in gen if indiv.fit <= avg_fit]
     if len(breaders) == 0:
         breaders = gen
+    return breaders
+
+mutation_chance = 0.1
+bounds = [[-4,4],[-4,4]]
+objective = camel
+gen = generate(10, objective)
+
+for i in range(1000):
+    # print([g.fit for g in gen])
+    avg_fit = sum([g.fit for g in gen])/len(gen)
+    # print(f"{i}. best fit: {min([g.fit for g in gen])}    |   avg fit: {avg_fit}\n")
+    
+    breaders = selection(gen)
+    
     new_gen = []
     # started new gen
     for j in range(len(gen)):
         mother = rnd.choice(breaders)
         father = rnd.choice(breaders)
         # crossover
-        child = crossover(mother, father, camel)
+        child = crossover(mother, father, objective)
         # mutation
-        mutate(child, camel)
+        mutate(child, objective)
         new_gen.append(child)
     gen = new_gen
 
