@@ -2,7 +2,6 @@ from audioop import avg
 from cmath import sqrt
 import matplotlib.pyplot as plt
 import numpy as np
-
 import random as rnd
 from ast import literal_eval
 import collections
