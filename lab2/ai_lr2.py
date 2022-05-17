@@ -46,13 +46,13 @@ def train(net: Net, iterations_count):
         prev_error = error
 
 
-set_size = 32
+set_size = 10
 x1 = 5
 x2 = 4
 x3 = 3
 
 getcontext().prec = 6
-net = Net(learning_rate = 0.0001, hid_count = 100)
+net = Net(learning_rate = 0.0001, hid_count = 30)
 
 X, Y = generateData(func, set_size, x1, x2, x3)
 
